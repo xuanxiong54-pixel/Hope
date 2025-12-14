@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Restructuring Lab - Anchor of Hope</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm-cream: #F8F6F0;
+            --soft-coral: #E8A598;
+            --sage-green: #B8C5A6;
+            --warm-beige: #F2E7D5;
+            --deep-charcoal: #2C3E50;
+            --light-blue: #D6E2E8;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--warm-cream);
+            color: var(--deep-charcoal);
+            line-height: 1.6;
+        }
+        
+        .serif-font {
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, rgba(248, 246, 240, 0.9), rgba(242, 231, 213, 0.9)), url('thought-transformation.png');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(44, 62, 80, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--soft-coral), var(--sage-green));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(232, 165, 152, 0.4);
+        }
+        
+        .abcde-step {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .abcde-step.active {
+            border-left-color: var(--soft-coral);
+            background-color: rgba(232, 165, 152, 0.05);
+        }
+        
+        .abcde-step.completed {
+            border-left-color: var(--sage-green);
+            background-color: rgba(184, 197, 166, 0.05);
+        }
+        
+        .transformation-visual {
+            position: relative;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(232, 165, 152, 0.1), rgba(184, 197, 166, 0.1));
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .thought-bubble {
+            position: absolute;
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease;
+        }
+        
+        .thought-bubble.negative {
+            left: 10%;
+            top: 20%;
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #dc2626;
+        }
+        
+        .thought-bubble.positive {
+            right: 10%;
+            top: 20%;
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #16a34a;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        
+        .thought-bubble.positive.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: var(--soft-coral);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+        
+        .arrow.show {
+            opacity: 1;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--warm-cream);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(44, 62, 80, 0.2);
+        }
+        
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .floating-shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 10s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-40px) rotate(180deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-orange-300 to-green-300 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">H</span>
+                    </div>
+                    <span class="serif-font text-xl font-bold text-gray-800">Anchor of Hope</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-orange-400 transition-colors">Home</a>
+                    <a href="path-navigation.html" class="text-gray-700 hover:text-orange-400 transition-colors">Hope Path</a>
+                    <a href="cognitive-lab.html" class="text-orange-400 font-medium">Cognitive Lab</a>
+                    <a href="story-house.html" class="text-gray-700 hover:text-orange-400 transition-colors">Story House</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
+        <div class="floating-elements">
+            <div class="floating-shape" style="left: 15%; top: 25%; animation-delay: 0s;">
+                <svg class="w-16 h-16 text-orange-400" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="currentColor"/>
+                </svg>
+            </div>
+            <div class="floating-shape" style="left: 75%; top: 35%; animation-delay: 3s;">
+                <svg class="w-12 h-12 text-green-400" viewBox="0 0 100 100">
+                    <polygon points="50,10 90,90 10,90" fill="currentColor"/>
+                </svg>
+            </div>
+            <div class="floating-shape" style="left: 45%; top: 65%; animation-delay: 6s;">
+                <svg class="w-20 h-20 text-purple-400" viewBox="0 0 100 100">
+                    <rect x="20" y="20" width="60" height="60" rx="10" fill="currentColor"/>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="text-center z-10 max-w-4xl mx-auto px-4">
+            <h1 class="serif-font text-5xl md:text-6xl font-bold mb-6 text-gray-800 leading-tight">
+                <span class="inline-block">Cognitive</span>
+                <span class="inline-block bg-gradient-to-r from-orange-400 to-green-400 bg-clip-text text-transparent">Restructuring</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-gray-600 max-w-3xl mx-auto">
+                Using the ABCDE model, guide you to identify automatic negative thoughts through structured questioning and restructure them into a positive explanatory style
+            </p>
+            <button onclick="openThoughtRecord()" class="btn-primary text-white px-8 py-4 rounded-full text-lg font-medium shadow-lg">
+                Start Thought Recording
+            </button>
+        </div>
+    </section>
+
+    <!-- ABCDE Model Introduction -->
+    <section class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="serif-font text-4xl font-bold mb-6 text-gray-800">ABCDE Cognitive Restructuring Model</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Based on learned optimism theory, help you identify and restructure negative automatic thoughts through five steps
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- A - Adversity -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-red-500 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-2xl font-bold">A</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Adversity</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Record specific events or situations that trigger negative emotions, describing objectively what happened.
+                    </p>
+                    <div class="bg-red-50 p-4 rounded-xl">
+                        <p class="text-sm text-red-700">
+                            <strong>Example:</strong> Made a mistake at work today and it was pointed out by my supervisor.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- B - Belief -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-500 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-2xl font-bold">B</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Belief</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Identify the automatic thoughts and self-talk that arise in this situation.
+                    </p>
+                    <div class="bg-orange-50 p-4 rounded-xl">
+                        <p class="text-sm text-orange-700">
+                            <strong>Example:</strong> I'm so useless, always making mistakes. My supervisor must be disappointed in me.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- C - Consequence -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-2xl font-bold">C</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Consequence</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Record the emotional and behavioral responses these thoughts bring.
+                    </p>
+                    <div class="bg-yellow-50 p-4 rounded-xl">
+                        <p class="text-sm text-yellow-700">
+                            <strong>Example:</strong> Feeling depressed and self-critical, work efficiency decreased, don't want to communicate with others.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- D - Disputation -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-500 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-2xl font-bold">D</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Disputation</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Question and debate the evidence and rationality of negative thoughts.
+                    </p>
+                    <div class="bg-green-50 p-4 rounded-xl">
+                        <p class="text-sm text-green-700">
+                            <strong>Example:</strong> Does this mistake really mean I'm incompetent? Do other people make mistakes too?
+                        </p>
+                    </div>
+                </div>
+
+                <!-- E - Energization -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-2xl font-bold">E</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Energization</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Experience the energy and feelings brought by new positive thoughts.
+                    </p>
+                    <div class="bg-blue-50 p-4 rounded-xl">
+                        <p class="text-sm text-blue-700">
+                            <strong>Example:</strong> Making mistakes is an opportunity to learn. I can grow from this and become stronger.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Comprehensive Example -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100 md:col-span-2 lg:col-span-1">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-500 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-2xl font-bold">✨</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Complete Case Study</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        See how to apply the ABCDE model to completely process a negative thought.
+                    </p>
+                    <button onclick="showExampleCase()" class="w-full bg-purple-50 text-purple-700 py-3 rounded-lg font-medium hover:bg-purple-100 transition-colors">
+                        View Complete Case
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Thought Recording Tool -->
+    <section class="py-20 px-4 bg-gradient-to-br from-orange-50 to-green-50">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="serif-font text-4xl font-bold mb-6 text-gray-800">Begin Your Cognitive Restructuring Journey</h2>
+                <p class="text-xl text-gray-600">Every thought recording is an opportunity for growth</p>
+            </div>
+            
+            <div class="bg-white rounded-3xl p-8 shadow-lg">
+                <div class="transformation-visual mb-8">
+                    <div class="thought-bubble negative">
+                        <p class="text-sm font-medium">"I always fail, I'm worthless"</p>
+                    </div>
+                    <div class="thought-bubble positive">
+                        <p class="text-sm font-medium">"This setback is a growth opportunity"</p>
+                    </div>
+                    <div class="arrow">
+                        →
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="text-center p-6 bg-orange-50 rounded-2xl">
+                        <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-800">Record Thoughts</h3>
+                        <p class="text-gray-600 text-sm">Capture current negative automatic thoughts</p>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-green-50 rounded-2xl">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-800">Debate & Restructure</h3>
+                        <p class="text-gray-600 text-sm">Question negative thoughts and build positive cognition</p>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-blue-50 rounded-2xl">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-800">Energy Activation</h3>
+                        <p class="text-gray-600 text-sm">Experience inner strength from positive thinking</p>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="openThoughtRecord()" class="btn-primary text-white px-8 py-4 rounded-full text-lg font-medium shadow-lg">
+                        Start First Thought Recording
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- History Records -->
+    <section class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="serif-font text-4xl font-bold mb-6 text-gray-800">My Cognitive Restructuring Journey</h2>
+                <p class="text-xl text-gray-600">Review your growth trajectory and witness the positive transformation of your thinking patterns</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Example Record -->
+                <div class="card-hover bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-sm text-gray-500">2025-12-09</div>
+                        <div class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full">Completed</div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">Work Frustration</h3>
+                    <p class="text-gray-600 text-sm mb-4">Restructured "I always fail" to "This experience taught me valuable lessons"</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-1">
+                            <span class="text-xs text-gray-500">Positivity Increased</span>
+                            <div class="w-16 bg-gray-200 rounded-full h-1">
+                                <div class="bg-green-400 h-1 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <button onclick="viewRecord('record1')" class="text-orange-400 text-sm hover:text-orange-500">View Details</button>
+                    </div>
+                </div>
+
+                <div class="card-hover bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-sm text-gray-500">2025-12-08</div>
+                        <div class="px-3 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">In Progress</div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">Relationship Concerns</h3>
+                    <p class="text-gray-600 text-sm mb-4">Learning to change excessive concern about others' opinions</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-1">
+                            <span class="text-xs text-gray-500">Positivity Increased</span>
+                            <div class="w-16 bg-gray-200 rounded-full h-1">
+                                <div class="bg-orange-400 h-1 rounded-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+                        <button onclick="viewRecord('record2')" class="text-orange-400 text-sm hover:text-orange-500">Continue Processing</button>
+                    </div>
+                </div>
+
+                <div class="card-hover bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-sm text-gray-500">2025-12-07</div>
+                        <div class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full">Completed</div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">Study Stress Relief</h3>
+                    <p class="text-gray-600 text-sm mb-4">From "I can't learn" to "I'm gradually mastering new knowledge"</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-1">
+                            <span class="text-xs text-gray-500">Positivity Increased</span>
+                            <div class="w-16 bg-gray-200 rounded-full h-1">
+                                <div class="bg-green-400 h-1 rounded-full" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        <button onclick="viewRecord('record3')" class="text-orange-400 text-sm hover:text-orange-500">View Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Thought Recording Modal -->
+    <div id="thoughtModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="serif-font text-2xl font-bold text-gray-800">ABCDE Thought Recording</h3>
+                <button onclick="closeThoughtModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- Step A -->
+                <div id="stepA" class="abcde-step p-6 rounded-xl">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-red-400 to-red-500 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-white font-bold">A</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-800">Adversity</h4>
+                    </div>
+                    <p class="text-gray-600 mb-4">Describe specific events or situations that trigger negative emotions</p>
+                    <textarea id="inputA" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300 focus:border-transparent" rows="3" placeholder="What happened? Who said or did what and when?"></textarea>
+                    <button onclick="proceedToStep('A', 'B')" class="mt-4 bg-red-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-500 transition-colors">
+                        Next Step
+                    </button>
+                </div>
+
+                <!-- Step B -->
+                <div id="stepB" class="abcde-step p-6 rounded-xl hidden">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-white font-bold">B</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-800">Belief</h4>
+                    </div>
+                    <p class="text-gray-600 mb-4">Record your automatic thoughts and self-talk in this situation</p>
+                    <textarea id="inputB" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent" rows="3" placeholder="What did you think? What did you say to yourself?"></textarea>
+                    <div class="flex space-x-3 mt-4">
+                        <button onclick="goBackToStep('B', 'A')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                            Previous Step
+                        </button>
+                        <button onclick="proceedToStep('B', 'C')" class="bg-orange-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-orange-500 transition-colors">
+                            Next Step
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step C -->
+                <div id="stepC" class="abcde-step p-6 rounded-xl hidden">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-white font-bold">C</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-800">Consequence</h4>
+                    </div>
+                    <p class="text-gray-600 mb-4">Describe the emotional and behavioral responses these thoughts bring</p>
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Emotional Feelings</label>
+                            <textarea id="inputC1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-300 focus:border-transparent" rows="2" placeholder="What emotions did you feel? How intense were they?"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Behavioral Response</label>
+                            <textarea id="inputC2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-300 focus:border-transparent" rows="2" placeholder="What did you do or want to do at that time?"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="goBackToStep('C', 'B')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                            Previous Step
+                        </button>
+                        <button onclick="proceedToStep('C', 'D')" class="bg-yellow-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-yellow-500 transition-colors">
+                            Next Step
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step D -->
+                <div id="stepD" class="abcde-step p-6 rounded-xl hidden">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-white font-bold">D</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-800">Disputation</h4>
+                    </div>
+                    <p class="text-gray-600 mb-4">Question and debate the evidence and rationality of negative thoughts</p>
+                    <div class="space-y-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Evidence Testing</label>
+                            <textarea id="inputD1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-300 focus:border-transparent" rows="2" placeholder="What evidence supports this thought? What evidence contradicts it?"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Other Possibilities</label>
+                            <textarea id="inputD2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-300 focus:border-transparent" rows="2" placeholder="Are there other explanations or possibilities?"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Practical Thinking</label>
+                            <textarea id="inputD3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-300 focus:border-transparent" rows="2" placeholder="What are the benefits and drawbacks of believing this thought?"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="goBackToStep('D', 'C')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                            Previous Step
+                        </button>
+                        <button onclick="proceedToStep('D', 'E')" class="bg-green-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-500 transition-colors">
+                            Next Step
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step E -->
+                <div id="stepE" class="abcde-step p-6 rounded-xl hidden">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-white font-bold">E</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-800">Energization</h4>
+                    </div>
+                    <p class="text-gray-600 mb-4">Experience the energy and feelings brought by new positive thoughts</p>
+                    <div class="space-y-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">New Positive Thoughts</label>
+                            <textarea id="inputE1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent" rows="3" placeholder="Based on the disputation, how do you view this situation now?"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Feelings and Energy Changes</label>
+                            <textarea id="inputE2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent" rows="2" placeholder="How do you feel now? What new thoughts or plans do you have?"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="goBackToStep('E', 'D')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                            Previous Step
+                        </button>
+                        <button onclick="completeRecord()" class="bg-blue-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-500 transition-colors">
+                            Complete Recording
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-300 to-green-300 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">H</span>
+                </div>
+                <span class="serif-font text-xl font-bold">Anchor of Hope</span>
+            </div>
+            <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
+                Remember, Anchor of Hope is your companion on this journey. If you feel the need for deeper support, seeking professional psychological counseling is an important way to care for yourself.
+            </p>
+            <div class="border-t border-gray-700 pt-6">
+                <p class="text-sm text-gray-500">
+                    © 2025 Anchor of Hope Psychological Reconstruction Platform. Together with you, rebuilding inner hope and strength.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let currentStep = 'A';
+        let thoughtRecord = {};
+
+        // Page load animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Card animations
+            anime({
+                targets: '.card-hover',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 800,
+                delay: anime.stagger(200, {start: 500}),
+                easing: 'easeOutExpo'
+            });
+            
+            // Thought transformation demo animation
+            setTimeout(() => {
+                startTransformationDemo();
+            }, 2000);
+        });
+
+        // Thought transformation demonstration
+        function startTransformationDemo() {
+            const negativeBubble = document.querySelector('.thought-bubble.negative');
+            const positiveBubble = document.querySelector('.thought-bubble.positive');
+            const arrow = document.querySelector('.arrow');
+            
+            // Negative thought display
+            anime({
+                targets: negativeBubble,
+                scale: [0.8, 1],
+                opacity: [0.7, 1],
+                duration: 1000,
+                easing: 'easeOutExpo'
+            });
+            
+            // Arrow appearance
+            setTimeout(() => {
+                anime({
+                    targets: arrow,
+                    opacity: [0, 1],
+                    scale: [0.5, 1],
+                    duration: 800,
+                    easing: 'easeOutExpo'
+                });
+            }, 1500);
+            
+            // Positive thought appearance
+            setTimeout(() => {
+                positiveBubble.classList.add('show');
+                anime({
+                    targets: positiveBubble,
+                    scale: [0.8, 1],
+                    duration: 1000,
+                    easing: 'easeOutExpo'
+                });
+            }, 2500);
+            
+            // Loop animation
+            setTimeout(() => {
+                negativeBubble.style.opacity = '0.3';
+                setTimeout(() => {
+                    negativeBubble.style.opacity = '1';
+                    startTransformationDemo();
+                }, 1000);
+            }, 5000);
+        }
+
+        // Thought recording related functions
+        function openThoughtRecord() {
+            document.getElementById('thoughtModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            resetThoughtRecord();
+        }
+
+        function closeThoughtModal() {
+            document.getElementById('thoughtModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function resetThoughtRecord() {
+            currentStep = 'A';
+            thoughtRecord = {};
+            document.querySelectorAll('.abcde-step').forEach(step => {
+                step.classList.add('hidden');
+                step.classList.remove('active', 'completed');
+            });
+            document.getElementById('stepA').classList.remove('hidden');
+            document.getElementById('stepA').classList.add('active');
+            
+            // Clear all inputs
+            document.querySelectorAll('textarea').forEach(input => input.value = '');
+        }
+
+        function proceedToStep(current, next) {
+            // Save current step data
+            saveCurrentStepData(current);
+            
+            // Hide current step
+            document.getElementById(`step${current}`).classList.add('hidden');
+            document.getElementById(`step${current}`).classList.remove('active');
+            document.getElementById(`step${current}`).classList.add('completed');
+            
+            // Show next step
+            document.getElementById(`step${next}`).classList.remove('hidden');
+            document.getElementById(`step${next}`).classList.add('active');
+            
+            currentStep = next;
+            
+            // Scroll to top
+            document.querySelector('.modal-content').scrollTop = 0;
+            
+            // Animation effect
+            anime({
+                targets: `#step${next}`,
+                opacity: [0, 1],
+                translateX: [50, 0],
+                duration: 500,
+                easing: 'easeOutExpo'
+            });
+        }
+
+        function goBackToStep(current, prev) {
+            // Hide current step
+            document.getElementById(`step${current}`).classList.add('hidden');
+            document.getElementById(`step${current}`).classList.remove('active');
+            
+            // Show previous step
+            document.getElementById(`step${prev}`).classList.remove('hidden', 'completed');
+            document.getElementById(`step${prev}`).classList.add('active');
+            
+            currentStep = prev;
+            
+            // Scroll to top
+            document.querySelector('.modal-content').scrollTop = 0;
+        }
+
+        function saveCurrentStepData(step) {
+            switch(step) {
+                case 'A':
+                    thoughtRecord.adversity = document.getElementById('inputA').value;
+                    break;
+                case 'B':
+                    thoughtRecord.belief = document.getElementById('inputB').value;
+                    break;
+                case 'C':
+                    thoughtRecord.emotion = document.getElementById('inputC1').value;
+                    thoughtRecord.behavior = document.getElementById('inputC2').value;
+                    break;
+                case 'D':
+                    thoughtRecord.evidence = document.getElementById('inputD1').value;
+                    thoughtRecord.alternatives = document.getElementById('inputD2').value;
+                    thoughtRecord.utility = document.getElementById('inputD3').value;
+                    break;
+                case 'E':
+                    thoughtRecord.newThought = document.getElementById('inputE1').value;
+                    thoughtRecord.energy = document.getElementById('inputE2').value;
+                    break;
+            }
+        }
+
+        function completeRecord() {
+            saveCurrentStepData('E');
+            
+            // Validate required fields
+            if (!thoughtRecord.adversity || !thoughtRecord.belief || !thoughtRecord.newThought) {
+                alert('Please complete all required fields');
+                return;
+            }
+            
+            // Add time and ID
+            thoughtRecord.id = Date.now();
+            thoughtRecord.date = new Date().toLocaleDateString();
+            thoughtRecord.status = 'completed';
+            
+            // Here you can save the record to local storage or send to server
+            console.log('Thought recording completed:', thoughtRecord);
+            
+            // Show success message
+            showCompletionMessage();
+        }
+
+        function showCompletionMessage() {
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="text-6xl mb-6">🎉</div>
+                    <h3 class="serif-font text-3xl font-bold mb-4 text-gray-800">Congratulations on Completing Cognitive Restructuring!</h3>
+                    <p class="text-xl text-gray-600 mb-8">
+                        You have successfully completed a cognitive restructuring exercise. This way of thinking will become your inner strength.
+                    </p>
+                    <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-2xl mb-8">
+                        <h4 class="font-bold text-gray-800 mb-3">Your Growth Achievements:</h4>
+                        <ul class="text-left text-gray-600 space-y-2">
+                            <li>• Identified negative automatic thoughts</li>
+                            <li>• Learned to question and debate negative ideas</li>
+                            <li>• Constructed more positive cognitive patterns</li>
+                            <li>• Experienced energy from positive thinking</li>
+                        </ul>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="closeThoughtModal()" class="w-full btn-primary text-white px-6 py-3 rounded-full font-medium">
+                            Continue Growth Journey
+                        </button>
+                        <button onclick="startNewRecord()" class="w-full bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-300 transition-colors">
+                            Start New Recording
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startNewRecord() {
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="serif-font text-2xl font-bold text-gray-800">ABCDE Thought Recording</h3>
+                    <button onclick="closeThoughtModal()" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="stepA" class="abcde-step p-6 rounded-xl active">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-red-400 to-red-500 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-white font-bold">A</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-800">Adversity</h4>
+                    </div>
+                    <p class="text-gray-600 mb-4">Describe specific events or situations that trigger negative emotions</p>
+                    <textarea id="inputA" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300 focus:border-transparent" rows="3" placeholder="What happened? Who said or did what and when?"></textarea>
+                    <button onclick="proceedToStep('A', 'B')" class="mt-4 bg-red-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-500 transition-colors">
+                        Next Step
+                    </button>
+                </div>
+            `;
+            resetThoughtRecord();
+        }
+
+        // Other functions
+        function showExampleCase() {
+            alert('Complete case study function under development, will provide detailed case analysis in next version.');
+        }
+
+        function viewRecord(recordId) {
+            alert(`View record details: ${recordId} - Function under development...`);
+        }
+    </script>
+</body>
+</html>

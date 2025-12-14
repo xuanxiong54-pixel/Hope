@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anchor of Hope - Disaster Psychological Reconstruction Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm-cream: #F8F6F0;
+            --soft-coral: #E8A598;
+            --sage-green: #B8C5A6;
+            --warm-beige: #F2E7D5;
+            --deep-charcoal: #2C3E50;
+            --light-blue: #D6E2E8;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--warm-cream);
+            color: var(--deep-charcoal);
+            line-height: 1.6;
+        }
+        
+        .serif-font {
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, rgba(248, 246, 240, 0.9), rgba(242, 231, 213, 0.9)), url('hero-forest.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(44, 62, 80, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--soft-coral), var(--sage-green));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(232, 165, 152, 0.4);
+        }
+        
+        .floating-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(232, 165, 152, 0.3), transparent);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+        
+        .energy-bar {
+            background: linear-gradient(90deg, var(--sage-green), var(--soft-coral));
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--warm-cream);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(44, 62, 80, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-orange-300 to-green-300 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">H</span>
+                    </div>
+                    <span class="serif-font text-xl font-bold text-gray-800">Anchor of Hope</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="text-gray-700 hover:text-orange-400 transition-colors">Home</a>
+                    <a href="path-navigation.html" class="text-gray-700 hover:text-orange-400 transition-colors">Hope Path</a>
+                    <a href="cognitive-lab.html" class="text-gray-700 hover:text-orange-400 transition-colors">Cognitive Lab</a>
+                    <a href="story-house.html" class="text-gray-700 hover:text-orange-400 transition-colors">Story House</a>
+                </div>
+                <button class="md:hidden p-2" onclick="toggleMobileMenu()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section min-h-screen flex items-center justify-center relative overflow-hidden">
+        <div class="floating-particles">
+            <div class="particle" style="left: 10%; width: 4px; height: 4px; animation-delay: 0s;"></div>
+            <div class="particle" style="left: 20%; width: 6px; height: 6px; animation-delay: 1s;"></div>
+            <div class="particle" style="left: 30%; width: 3px; height: 3px; animation-delay: 2s;"></div>
+            <div class="particle" style="left: 40%; width: 5px; height: 5px; animation-delay: 3s;"></div>
+            <div class="particle" style="left: 50%; width: 4px; height: 4px; animation-delay: 4s;"></div>
+            <div class="particle" style="left: 60%; width: 6px; height: 6px; animation-delay: 5s;"></div>
+            <div class="particle" style="left: 70%; width: 3px; height: 3px; animation-delay: 1.5s;"></div>
+            <div class="particle" style="left: 80%; width: 5px; height: 5px; animation-delay: 2.5s;"></div>
+            <div class="particle" style="left: 90%; width: 4px; height: 4px; animation-delay: 3.5s;"></div>
+        </div>
+        
+        <div class="text-center z-10 max-w-4xl mx-auto px-4">
+            <h1 class="serif-font text-5xl md:text-7xl font-bold mb-6 text-gray-800 leading-tight">
+                <span class="inline-block opacity-0" id="title-1">Welcome to</span>
+                <span class="inline-block opacity-0 bg-gradient-to-r from-orange-400 to-green-400 bg-clip-text text-transparent" id="title-2">Anchor of Hope</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-gray-600 opacity-0" id="subtitle">
+                I know you're going through a difficult time. Being here itself takes courage.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center opacity-0" id="cta-buttons">
+                <button onclick="openAssessmentModal()" class="btn-primary text-white px-8 py-4 rounded-full text-lg font-medium shadow-lg">
+                    Start Assessment & Guidance
+                </button>
+                <button onclick="scrollToModules()" class="bg-white/80 text-gray-700 px-8 py-4 rounded-full text-lg font-medium shadow-lg hover:bg-white transition-all">
+                    Explore Features
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Features -->
+    <section id="modules" class="py-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="serif-font text-4xl md:text-5xl font-bold mb-6 text-gray-800">Core Support Modules</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Based on hope theory, learned optimism theory, and emotional narrative theory, we provide structured psychological reconstruction support
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Hope Path Navigation -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-500 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="serif-font text-2xl font-bold mb-4 text-gray-800">Hope Path Navigation</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Transform vague wishes into specific, actionable goals, and generate multiple viable "action paths" to cultivate "pathway thinking".
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm text-gray-500">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                            Goal Setting & Breakdown
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                            Multiple Path Options
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                            Visual Progress Tracking
+                        </div>
+                    </div>
+                    <a href="path-navigation.html" class="inline-block btn-primary text-white px-6 py-3 rounded-full font-medium">
+                        Start Hope Journey
+                    </a>
+                </div>
+
+                <!-- Cognitive Restructuring Lab -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-500 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="serif-font text-2xl font-bold mb-4 text-gray-800">Cognitive Restructuring Lab</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Using the ABCDE model, guide you to identify automatic negative thoughts through structured questioning and practice restructuring them into a more positive explanatory style.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm text-gray-500">
+                            <div class="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
+                            Automatic Thought Capture
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <div class="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
+                            Evidence Debate & Review
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <div class="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
+                            Positive Restructuring Practice
+                        </div>
+                    </div>
+                    <a href="cognitive-lab.html" class="inline-block btn-primary text-white px-6 py-3 rounded-full font-medium">
+                        Start Cognitive Restructuring
+                    </a>
+                </div>
+
+                <!-- Story House -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-500 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    <h3 class="serif-font text-2xl font-bold mb-4 text-gray-800">Story House</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Provide phased writing guidance templates to safely support you in completing emotional expression and integration, finding healing through narrative.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm text-gray-500">
+                            <div class="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                            Phased Writing Templates
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <div class="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                            Safe & Private Environment
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <div class="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                            Emotional Integration Guidance
+                        </div>
+                    </div>
+                    <a href="story-house.html" class="inline-block btn-primary text-white px-6 py-3 rounded-full font-medium">
+                        Start Writing Therapy
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Progress Tracking -->
+    <section class="py-20 px-4 bg-gradient-to-br from-orange-50 to-green-50">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="serif-font text-4xl font-bold mb-8 text-gray-800">Your Growth Journey</h2>
+            <p class="text-xl text-gray-600 mb-12">Every step of progress deserves celebration. Let's witness your transformation together.</p>
+            
+            <div class="bg-white rounded-3xl p-8 shadow-lg">
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Today's Hope Energy</h3>
+                    <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                        <div class="energy-bar w-3/4 rounded-full"></div>
+                    </div>
+                    <p class="text-gray-600">You have accumulated 75% hope energy. Keep it up!</p>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span class="text-2xl font-bold text-green-600">12</span>
+                        </div>
+                        <p class="text-sm text-gray-600">Goals Completed</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span class="text-2xl font-bold text-orange-600">8</span>
+                        </div>
+                        <p class="text-sm text-gray-600">Cognitive Restructuring</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span class="text-2xl font-bold text-purple-600">15</span>
+                        </div>
+                        <p class="text-sm text-gray-600">Stories Written</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span class="text-2xl font-bold text-blue-600">35</span>
+                        </div>
+                        <p class="text-sm text-gray-600">Consecutive Days</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Assessment Modal -->
+    <div id="assessmentModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="serif-font text-2xl font-bold text-gray-800">Initial Assessment</h3>
+                <button onclick="closeAssessmentModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="assessmentStep1" class="assessment-step">
+                <h4 class="text-xl font-semibold mb-4 text-gray-800">Right now, what kind of support do you need most?</h4>
+                <div class="space-y-3">
+                    <button onclick="selectAssessmentOption(1, 'calm')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all">
+                        <div class="font-medium text-gray-800">Feel more calm</div>
+                        <div class="text-sm text-gray-600 mt-1">Learn emotional regulation and relaxation techniques</div>
+                    </button>
+                    <button onclick="selectAssessmentOption(1, 'goal')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all">
+                        <div class="font-medium text-gray-800">Find a small goal for the future</div>
+                        <div class="text-sm text-gray-600 mt-1">Set specific and actionable plans</div>
+                    </button>
+                    <button onclick="selectAssessmentOption(1, 'thoughts')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all">
+                        <div class="font-medium text-gray-800">Change negative thoughts</div>
+                        <div class="text-sm text-gray-600 mt-1">Learn positive cognitive restructuring techniques</div>
+                    </button>
+                    <button onclick="selectAssessmentOption(1, 'share')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all">
+                        <div class="font-medium text-gray-800">Share and express inner feelings</div>
+                        <div class="text-sm text-gray-600 mt-1">Integrate emotional experiences through writing</div>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="assessmentStep2" class="assessment-step hidden">
+                <h4 class="text-xl font-semibold mb-4 text-gray-800">How is your current emotional state?</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectAssessmentOption(2, 'high')" class="p-4 rounded-xl border-2 border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all text-center">
+                        <div class="text-2xl mb-2">😊</div>
+                        <div class="font-medium">Relatively Positive</div>
+                    </button>
+                    <button onclick="selectAssessmentOption(2, 'medium')" class="p-4 rounded-xl border-2 border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all text-center">
+                        <div class="text-2xl mb-2">😐</div>
+                        <div class="font-medium">Neutral</div>
+                    </button>
+                    <button onclick="selectAssessmentOption(2, 'low')" class="p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all text-center">
+                        <div class="text-2xl mb-2">😔</div>
+                        <div class="font-medium">Somewhat Low</div>
+                    </button>
+                    <button onclick="selectAssessmentOption(2, 'very-low')" class="p-4 rounded-xl border-2 border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all text-center">
+                        <div class="text-2xl mb-2">😢</div>
+                        <div class="font-medium">Quite Difficult</div>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="assessmentResult" class="assessment-step hidden">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🌱</div>
+                    <h4 class="text-2xl font-bold mb-4 text-gray-800">Assessment Complete</h4>
+                    <p class="text-gray-600 mb-6" id="assessmentMessage">
+                        Based on your choices, we recommend the most suitable module. Remember, every step is an opportunity for growth.
+                    </p>
+                    <div class="space-y-3">
+                        <button onclick="startRecommendedModule()" class="w-full btn-primary text-white px-6 py-3 rounded-full font-medium">
+                            Start Recommended Module
+                        </button>
+                        <button onclick="closeAssessmentModal()" class="w-full bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-300 transition-all">
+                            Decide Later
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-300 to-green-300 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">H</span>
+                </div>
+                <span class="serif-font text-xl font-bold">Anchor of Hope</span>
+            </div>
+            <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
+                Remember, Anchor of Hope is your companion on this journey. If you feel the need for deeper support, seeking professional psychological counseling is an important way to care for yourself.
+            </p>
+            <div class="border-t border-gray-700 pt-6">
+                <p class="text-sm text-gray-500">
+                    © 2025 Anchor of Hope Psychological Reconstruction Platform. Together with you, rebuilding inner hope and strength.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Page load animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Title animation
+            anime({
+                targets: '#title-1',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 1000,
+                delay: 500,
+                easing: 'easeOutExpo'
+            });
+            
+            anime({
+                targets: '#title-2',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 1000,
+                delay: 800,
+                easing: 'easeOutExpo'
+            });
+            
+            anime({
+                targets: '#subtitle',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 800,
+                delay: 1200,
+                easing: 'easeOutExpo'
+            });
+            
+            anime({
+                targets: '#cta-buttons',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 800,
+                delay: 1600,
+                easing: 'easeOutExpo'
+            });
+            
+            // Card animations
+            anime({
+                targets: '.card-hover',
+                opacity: [0, 1],
+                translateY: [50, 0],
+                duration: 800,
+                delay: anime.stagger(200, {start: 2000}),
+                easing: 'easeOutExpo'
+            });
+        });
+
+        // Assessment functions
+        let assessmentData = {};
+
+        function openAssessmentModal() {
+            document.getElementById('assessmentModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAssessmentModal() {
+            document.getElementById('assessmentModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            // Reset assessment
+            document.querySelectorAll('.assessment-step').forEach(step => step.classList.add('hidden'));
+            document.getElementById('assessmentStep1').classList.remove('hidden');
+            assessmentData = {};
+        }
+
+        function selectAssessmentOption(step, value) {
+            assessmentData[`step${step}`] = value;
+            
+            if (step === 1) {
+                document.getElementById('assessmentStep1').classList.add('hidden');
+                document.getElementById('assessmentStep2').classList.remove('hidden');
+            } else if (step === 2) {
+                document.getElementById('assessmentStep2').classList.add('hidden');
+                showAssessmentResult();
+            }
+        }
+
+        function showAssessmentResult() {
+            const step1Value = assessmentData.step1;
+            const step2Value = assessmentData.step2;
+            let message = '';
+            let recommendedModule = '';
+            
+            // Generate personalized message based on assessment results
+            if (step1Value === 'calm') {
+                message = 'You want to feel calm. We recommend starting with "Story House" to regulate emotions through writing and expression.';
+                recommendedModule = 'story-house.html';
+            } else if (step1Value === 'goal') {
+                message = 'You want to find goals. "Hope Path Navigation" will be your best choice, helping you set and achieve specific objectives.';
+                recommendedModule = 'path-navigation.html';
+            } else if (step1Value === 'thoughts') {
+                message = 'You want to change negative thoughts. "Cognitive Restructuring Lab" can help you learn positive thinking techniques.';
+                recommendedModule = 'cognitive-lab.html';
+            } else if (step1Value === 'share') {
+                message = 'You want to share feelings. "Story House" provides a safe space for writing and expression.';
+                recommendedModule = 'story-house.html';
+            }
+            
+            // Adjust suggestions based on emotional state
+            if (step2Value === 'very-low') {
+                message += ' We notice you may be in a difficult state. Remember that seeking professional help is a brave act.';
+            } else if (step2Value === 'low') {
+                message += ' Your feelings are completely understandable. Let\'s slowly walk out of the darkness together.';
+            } else if (step2Value === 'high') {
+                message += ' We\'re glad to see you maintaining a positive attitude. This will help you better utilize our tools.';
+            }
+            
+            document.getElementById('assessmentMessage').textContent = message;
+            assessmentData.recommendedModule = recommendedModule;
+            document.getElementById('assessmentResult').classList.remove('hidden');
+        }
+
+        function startRecommendedModule() {
+            if (assessmentData.recommendedModule) {
+                window.location.href = assessmentData.recommendedModule;
+            }
+        }
+
+        function scrollToModules() {
+            document.getElementById('modules').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        function toggleMobileMenu() {
+            // Mobile menu toggle function
+            alert('Mobile menu function under development...');
+        }
+
+        // Energy bar animation
+        function animateEnergyBar() {
+            const energyBar = document.querySelector('.energy-bar');
+            if (energyBar) {
+                anime({
+                    targets: energyBar,
+                    width: '75%',
+                    duration: 2000,
+                    delay: 1000,
+                    easing: 'easeOutExpo'
+                });
+            }
+        }
+
+        // Trigger animation when scrolling to energy bar section
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateEnergyBar();
+                }
+            });
+        });
+
+        const energySection = document.querySelector('.energy-bar');
+        if (energySection) {
+            observer.observe(energySection.parentElement);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story House - Anchor of Hope</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm-cream: #F8F6F0;
+            --soft-coral: #E8A598;
+            --sage-green: #B8C5A6;
+            --warm-beige: #F2E7D5;
+            --deep-charcoal: #2C3E50;
+            --light-blue: #D6E2E8;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--warm-cream);
+            color: var(--deep-charcoal);
+            line-height: 1.6;
+        }
+        
+        .serif-font {
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, rgba(248, 246, 240, 0.9), rgba(242, 231, 213, 0.9)), url('story-book.png');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(44, 62, 80, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--soft-coral), var(--sage-green));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(232, 165, 152, 0.4);
+        }
+        
+        .writing-stage {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .writing-stage.active {
+            border-left-color: var(--soft-coral);
+            background-color: rgba(232, 165, 152, 0.05);
+        }
+        
+        .writing-stage.completed {
+            border-left-color: var(--sage-green);
+            background-color: rgba(184, 197, 166, 0.05);
+        }
+        
+        .story-editor {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 246, 240, 0.9));
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(44, 62, 80, 0.1);
+            border: 1px solid rgba(232, 165, 152, 0.2);
+        }
+        
+        .writing-prompt {
+            background: linear-gradient(135deg, rgba(184, 197, 166, 0.1), rgba(232, 165, 152, 0.1));
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--sage-green);
+        }
+        
+        .word-count {
+            background: var(--sage-green);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--warm-cream);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 900px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(44, 62, 80, 0.2);
+        }
+        
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .floating-word {
+            position: absolute;
+            opacity: 0.1;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.2rem;
+            color: var(--soft-coral);
+            animation: float 12s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            50% { transform: translateY(-30px) rotate(5deg); opacity: 1; }
+        }
+        
+        .privacy-badge {
+            background: linear-gradient(135deg, var(--sage-green), var(--soft-coral));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-orange-300 to-green-300 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">H</span>
+                    </div>
+                    <span class="serif-font text-xl font-bold text-gray-800">Anchor of Hope</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-orange-400 transition-colors">Home</a>
+                    <a href="path-navigation.html" class="text-gray-700 hover:text-orange-400 transition-colors">Hope Path</a>
+                    <a href="cognitive-lab.html" class="text-gray-700 hover:text-orange-400 transition-colors">Cognitive Lab</a>
+                    <a href="story-house.html" class="text-orange-400 font-medium">Story House</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
+        <div class="floating-elements">
+            <div class="floating-word" style="left: 10%; top: 20%; animation-delay: 0s;">Hope</div>
+            <div class="floating-word" style="left: 80%; top: 30%; animation-delay: 3s;">Healing</div>
+            <div class="floating-word" style="left: 60%; top: 60%; animation-delay: 6s;">Growth</div>
+            <div class="floating-word" style="left: 20%; top: 70%; animation-delay: 9s;">Share</div>
+            <div class="floating-word" style="left: 70%; top: 15%; animation-delay: 12s;">Express</div>
+        </div>
+        
+        <div class="text-center z-10 max-w-4xl mx-auto px-4">
+            <h1 class="serif-font text-5xl md:text-6xl font-bold mb-6 text-gray-800 leading-tight">
+                <span class="inline-block">Story</span>
+                <span class="inline-block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">House</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-gray-600 max-w-3xl mx-auto">
+                Through phased writing guidance, safely express and integrate inner feelings, finding healing power in narrative
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="openWritingModal()" class="btn-primary text-white px-8 py-4 rounded-full text-lg font-medium shadow-lg">
+                    Start Writing Therapy
+                </button>
+                <button onclick="scrollToGuides()" class="bg-white/80 text-gray-700 px-8 py-4 rounded-full text-lg font-medium shadow-lg hover:bg-white transition-all">
+                    Explore Writing Stages
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Writing Stage Guides -->
+    <section id="guides" class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="serif-font text-4xl font-bold mb-6 text-gray-800">Phased Writing Guidance</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Choose the most suitable writing stage based on your current psychological state, progressing gradually in emotional expression and integration
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Stage 1: Stability & Safety -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-2xl">🏠</span>
+                    </div>
+                    <div class="privacy-badge mb-4">Suitable for Emotional Fluctuation Period</div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Settling in the Present</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        When you're experiencing significant emotional fluctuations, find inner security and stability through writing.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                            Describe current safe spaces
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                            Find inner peace resources
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                            Establish self-soothing mechanisms
+                        </div>
+                    </div>
+                    <button onclick="startWriting('stage1')" class="w-full bg-blue-50 text-blue-700 py-3 rounded-lg font-medium hover:bg-blue-100 transition-colors">
+                        Start Stability Writing
+                    </button>
+                </div>
+
+                <!-- Stage 2: Expression & Release -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-500 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-2xl">🌊</span>
+                    </div>
+                    <div class="privacy-badge mb-4">Suitable for Emotional Expression Period</div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">River of Emotions</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        When you feel relatively stable, safely express and release accumulated inner emotions through writing.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                            Identify and name emotions
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                            Explore stories behind emotions
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                            Learn emotional regulation techniques
+                        </div>
+                    </div>
+                    <button onclick="startWriting('stage2')" class="w-full bg-green-50 text-green-700 py-3 rounded-lg font-medium hover:bg-green-100 transition-colors">
+                        Start Expression Writing
+                    </button>
+                </div>
+
+                <!-- Stage 3: Meaning & Reconstruction -->
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-500 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-2xl">🌱</span>
+                    </div>
+                    <div class="privacy-badge mb-4">Suitable for Stable Period</div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">New Chapter of the Story</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        When you're emotionally stable, re-understand and construct the meaning of experiences through writing.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                            Discover growth in experiences
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                            Reconstruct personal life story
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                            Create future possibilities
+                        </div>
+                    </div>
+                    <button onclick="startWriting('stage3')" class="w-full bg-purple-50 text-purple-700 py-3 rounded-lg font-medium hover:bg-purple-100 transition-colors">
+                        Start Reconstruction Writing
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Writing Tool Preview -->
+    <section class="py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="serif-font text-4xl font-bold mb-6 text-gray-800">Safe Writing Environment</h2>
+                <p class="text-xl text-gray-600">We provide you with a private, secure, and supportive writing space</p>
+            </div>
+            
+            <div class="bg-white rounded-3xl p-8 shadow-lg">
+                <div class="story-editor">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">My Story</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="word-count">Words: 156</div>
+                            <div class="text-sm text-gray-500">Auto-saving...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="writing-prompt">
+                        <h4 class="font-bold text-gray-800 mb-2">💡 Writing Prompt</h4>
+                        <p class="text-gray-600 text-sm">
+                            Recall a moment that made you feel warm. Describe that moment's environment, people, sounds, and smells. Let this warm feeling flow through your words...
+                        </p>
+                    </div>
+                    
+                    <textarea 
+                        class="w-full h-64 p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent resize-none"
+                        placeholder="Start your writing journey here..."
+                        style="font-family: 'Noto Serif SC', serif; line-height: 1.8;"
+                    ></textarea>
+                    
+                    <div class="flex items-center justify-between mt-6">
+                        <div class="flex items-center space-x-4">
+                            <button class="text-gray-500 hover:text-purple-500 transition-colors" title="Font Settings">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                                </svg>
+                            </button>
+                            <button class="text-gray-500 hover:text-purple-500 transition-colors" title="Export">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                                Save Draft
+                            </button>
+                            <button class="btn-primary text-white px-6 py-2 rounded-lg font-medium">
+                                Complete Writing
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Sharing -->
+    <section class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="serif-font text-4xl font-bold mb-6 text-gray-800">Tree of Hope</h2>
+                <p class="text-xl text-gray-600">Share your growth stories anonymously and bring hope and strength to each other</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Shared Anonymous Stories -->
+                <div class="card-hover bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-sm text-gray-500">Anonymous</div>
+                        <div class="flex items-center space-x-1">
+                            <svg class="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            <span class="text-sm text-gray-500">12</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">From Despair to Hope</h3>
+                    <p class="text-gray-600 text-sm mb-4">
+                        After experiencing the double blow of unemployment and breakup, I gradually found inner strength through writing. Now I understand that every fall is for standing up better...
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-400">2025-12-08</span>
+                        <button class="text-orange-400 text-sm hover:text-orange-500">Read More</button>
+                    </div>
+                </div>
+
+                <div class="card-hover bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-sm text-gray-500">Anonymous</div>
+                        <div class="flex items-center space-x-1">
+                            <svg class="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            <span class="text-sm text-gray-500">8</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">Learning to Accept Myself</h3>
+                    <p class="text-gray-600 text-sm mb-4">
+                        Through daily writing practice, I learned to accept my imperfections. Now I can understand that true growth comes from gentleness and patience with myself...
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-400">2025-12-07</span>
+                        <button class="text-orange-400 text-sm hover:text-orange-500">Read More</button>
+                    </div>
+                </div>
+
+                <div class="card-hover bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-sm text-gray-500">Anonymous</div>
+                        <div class="flex items-center space-x-1">
+                            <svg class="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            <span class="text-sm text-gray-500">15</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">Redefining Happiness</h3>
+                    <p class="text-gray-600 text-sm mb-4">
+                        Writing helped me rethink what truly matters to me. I found that happiness lies not in what you possess, but in how you view what you already have...
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-400">2025-12-06</span>
+                        <button class="text-orange-400 text-sm hover:text-orange-500">Read More</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <button onclick="shareStory()" class="btn-primary text-white px-8 py-4 rounded-full text-lg font-medium shadow-lg">
+                    Share My Story
+                </button>
+                <p class="text-sm text-gray-500 mt-4">All shares are anonymous, protecting your privacy and security</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Writing Modal -->
+    <div id="writingModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="serif-font text-2xl font-bold text-gray-800">Soul Writing Space</h3>
+                <button onclick="closeWritingModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="writingInterface">
+                <!-- Stage Selection -->
+                <div id="stageSelection" class="mb-6">
+                    <h4 class="text-xl font-semibold mb-4 text-gray-800">Choose Writing Stage</h4>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <button onclick="selectStage('stage1')" class="p-4 border-2 border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all text-left">
+                            <div class="font-medium text-gray-800 mb-1">Stage 1: Settling in the Present</div>
+                            <div class="text-sm text-gray-600">Finding inner security</div>
+                        </button>
+                        <button onclick="selectStage('stage2')" class="p-4 border-2 border-gray-200 rounded-xl hover:border-green-300 hover:bg-green-50 transition-all text-left">
+                            <div class="font-medium text-gray-800 mb-1">Stage 2: River of Emotions</div>
+                            <div class="text-sm text-gray-600">Expressing and releasing emotions</div>
+                        </button>
+                        <button onclick="selectStage('stage3')" class="p-4 border-2 border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition-all text-left">
+                            <div class="font-medium text-gray-800 mb-1">Stage 3: New Chapter of the Story</div>
+                            <div class="text-sm text-gray-600">Reconstructing meaning of experiences</div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Writing Interface -->
+                <div id="writingArea" class="hidden">
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 id="stageTitle" class="text-xl font-bold text-gray-800"></h4>
+                            <div class="flex items-center space-x-3">
+                                <span id="wordCount" class="word-count">Words: 0</span>
+                                <button onclick="togglePrompts()" class="text-gray-500 hover:text-purple-500 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="writingPrompts" class="writing-prompt">
+                            <p id="promptText" class="text-gray-600"></p>
+                        </div>
+                    </div>
+                    
+                    <textarea 
+                        id="writingText" 
+                        class="w-full h-80 p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent resize-none"
+                        placeholder="Start your writing here..."
+                        style="font-family: 'Noto Serif SC', serif; line-height: 1.8;"
+                    ></textarea>
+                    
+                    <div class="flex items-center justify-between mt-6">
+                        <div class="flex items-center space-x-4">
+                            <button onclick="saveDraft()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                                Save Draft
+                            </button>
+                            <button onclick="clearText()" class="text-gray-500 hover:text-red-500 transition-colors">
+                                Clear & Rewrite
+                            </button>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="goBackToStageSelection()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                                Back to Selection
+                            </button>
+                            <button onclick="completeWriting()" class="btn-primary text-white px-6 py-2 rounded-lg font-medium">
+                                Complete Writing
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-300 to-green-300 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">H</span>
+                </div>
+                <span class="serif-font text-xl font-bold">Anchor of Hope</span>
+            </div>
+            <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
+                Remember, Anchor of Hope is your companion on this journey. If you feel the need for deeper support, seeking professional psychological counseling is an important way to care for yourself.
+            </p>
+            <div class="border-t border-gray-700 pt-6">
+                <p class="text-sm text-gray-500">
+                    © 2025 Anchor of Hope Psychological Reconstruction Platform. Together with you, rebuilding inner hope and strength.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let currentStage = '';
+        let writingData = {};
+
+        // Page load animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Card animations
+            anime({
+                targets: '.card-hover',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 800,
+                delay: anime.stagger(200, {start: 500}),
+                easing: 'easeOutExpo'
+            });
+        });
+
+        // Writing related functions
+        function openWritingModal() {
+            document.getElementById('writingModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeWritingModal() {
+            document.getElementById('writingModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            resetWritingModal();
+        }
+
+        function resetWritingModal() {
+            document.getElementById('stageSelection').classList.remove('hidden');
+            document.getElementById('writingArea').classList.add('hidden');
+            currentStage = '';
+            writingData = {};
+        }
+
+        function selectStage(stage) {
+            currentStage = stage;
+            const stageInfo = getStageInfo(stage);
+            
+            document.getElementById('stageTitle').textContent = stageInfo.title;
+            document.getElementById('promptText').textContent = stageInfo.prompt;
+            
+            document.getElementById('stageSelection').classList.add('hidden');
+            document.getElementById('writingArea').classList.remove('hidden');
+            
+            // Animation effect
+            anime({
+                targets: '#writingArea',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 500,
+                easing: 'easeOutExpo'
+            });
+        }
+
+        function getStageInfo(stage) {
+            const stages = {
+                stage1: {
+                    title: 'Stage 1: Settling in the Present',
+                    prompt: 'Please describe a place that makes you feel safe and comfortable. It can be real or imagined. Describe in detail what this place looks like, sounds like, smells like, and how you feel when you\'re there.'
+                },
+                stage2: {
+                    title: 'Stage 2: River of Emotions',
+                    prompt: 'Choose an emotion you\'ve been feeling frequently lately. Try to describe how this emotion feels in your body. What triggered this emotion? What would you like to say to this emotion?'
+                },
+                stage3: {
+                    title: 'Stage 3: New Chapter of the Story',
+                    prompt: 'Look back at a challenge you\'ve experienced. Think about how this experience has shaped who you are now. What did you learn from this experience? What would you like to say to your future self?'
+                }
+            };
+            return stages[stage] || stages.stage1;
+        }
+
+        function goBackToStageSelection() {
+            document.getElementById('writingArea').classList.add('hidden');
+            document.getElementById('stageSelection').classList.remove('hidden');
+            resetWritingModal();
+        }
+
+        function togglePrompts() {
+            const prompts = document.getElementById('writingPrompts');
+            prompts.classList.toggle('hidden');
+        }
+
+        function saveDraft() {
+            const text = document.getElementById('writingText').value;
+            if (text.trim()) {
+                // Here you can implement saving to local storage or sending to server
+                writingData.content = text;
+                writingData.stage = currentStage;
+                writingData.timestamp = new Date().toISOString();
+                
+                // Show save success notification
+                showNotification('Draft saved', 'success');
+            }
+        }
+
+        function clearText() {
+            if (confirm('Are you sure you want to clear the current content? This action cannot be undone.')) {
+                document.getElementById('writingText').value = '';
+                updateWordCount();
+            }
+        }
+
+        function completeWriting() {
+            const text = document.getElementById('writingText').value;
+            if (!text.trim()) {
+                showNotification('Please write some content first', 'warning');
+                return;
+            }
+            
+            // Save data
+            writingData.content = text;
+            writingData.stage = currentStage;
+            writingData.timestamp = new Date().toISOString();
+            writingData.completed = true;
+            
+            // Show completion interface
+            showCompletionInterface();
+        }
+
+        function showCompletionInterface() {
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="text-6xl mb-6">🌸</div>
+                    <h3 class="serif-font text-3xl font-bold mb-4 text-gray-800">Writing Completed!</h3>
+                    <p class="text-xl text-gray-600 mb-8">
+                        You have completed a meaningful writing exercise. Every writing session is a deep dialogue with your inner self.
+                    </p>
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl mb-8">
+                        <h4 class="font-bold text-gray-800 mb-3">Your Achievements:</h4>
+                        <ul class="text-left text-gray-600 space-y-2">
+                            <li>• Expressed inner true feelings</li>
+                            <li>• Achieved emotional release and integration</li>
+                            <li>• Deepened self-understanding</li>
+                            <li>• Accumulated strength for future growth</li>
+                        </ul>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="shareToCommunity()" class="w-full bg-gradient-to-r from-purple-400 to-pink-400 text-white px-6 py-3 rounded-full font-medium hover:from-purple-500 hover:to-pink-500 transition-all">
+                            Share Anonymously to Tree of Hope
+                        </button>
+                        <button onclick="keepPrivate()" class="w-full bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-300 transition-colors">
+                            Keep Private
+                        </button>
+                        <button onclick="startNewWriting()" class="w-full text-purple-600 hover:text-purple-700 px-6 py-3 rounded-full font-medium transition-colors">
+                            Start New Writing
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function shareToCommunity() {
+            // Here you can implement sharing to community logic
+            showNotification('Your story has been anonymously shared to Tree of Hope', 'success');
+            setTimeout(() => {
+                closeWritingModal();
+            }, 2000);
+        }
+
+        function keepPrivate() {
+            showNotification('Your writing content has been safely saved', 'success');
+            setTimeout(() => {
+                closeWritingModal();
+            }, 2000);
+        }
+
+        function startNewWriting() {
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="serif-font text-2xl font-bold text-gray-800">Soul Writing Space</h3>
+                    <button onclick="closeWritingModal()" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="stageSelection" class="mb-6">
+                    <h4 class="text-xl font-semibold mb-4 text-gray-800">Choose Writing Stage</h4>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <button onclick="selectStage('stage1')" class="p-4 border-2 border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all text-left">
+                            <div class="font-medium text-gray-800 mb-1">Stage 1: Settling in the Present</div>
+                            <div class="text-sm text-gray-600">Finding inner security</div>
+                        </button>
+                        <button onclick="selectStage('stage2')" class="p-4 border-2 border-gray-200 rounded-xl hover:border-green-300 hover:bg-green-50 transition-all text-left">
+                            <div class="font-medium text-gray-800 mb-1">Stage 2: River of Emotions</div>
+                            <div class="text-sm text-gray-600">Expressing and releasing emotions</div>
+                        </button>
+                        <button onclick="selectStage('stage3')" class="p-4 border-2 border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition-all text-left">
+                            <div class="font-medium text-gray-800 mb-1">Stage 3: New Chapter of the Story</div>
+                            <div class="text-sm text-gray-600">Reconstructing meaning of experiences</div>
+                        </button>
+                    </div>
+                </div>
+            `;
+            resetWritingModal();
+        }
+
+        // Word count
+        document.addEventListener('input', function(e) {
+            if (e.target.id === 'writingText') {
+                updateWordCount();
+            }
+        });
+
+        function updateWordCount() {
+            const text = document.getElementById('writingText').value;
+            const wordCount = text.length;
+            const wordCountElement = document.getElementById('wordCount');
+            if (wordCountElement) {
+                wordCountElement.textContent = `Words: ${wordCount}`;
+            }
+        }
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+            
+            // Set style based on type
+            switch(type) {
+                case 'success':
+                    notification.classList.add('bg-green-500', 'text-white');
+                    break;
+                case 'warning':
+                    notification.classList.add('bg-yellow-500', 'text-white');
+                    break;
+                case 'error':
+                    notification.classList.add('bg-red-500', 'text-white');
+                    break;
+                default:
+                    notification.classList.add('bg-blue-500', 'text-white');
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Show animation
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Auto hide
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Other functions
+        function startWriting(stage) {
+            openWritingModal();
+            setTimeout(() => {
+                selectStage(stage);
+            }, 100);
+        }
+
+        function scrollToGuides() {
+            document.getElementById('guides').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        function shareStory() {
+            alert('Story sharing function under development, will be available in next version.');
+        }
+
+        function viewRecord(recordId) {
+            alert(`View record details: ${recordId} - Function under development...`);
+        }
+    </script>
+</body>
+</html>

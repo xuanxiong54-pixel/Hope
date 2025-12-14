@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hope Path Navigation - Anchor of Hope</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm-cream: #F8F6F0;
+            --soft-coral: #E8A598;
+            --sage-green: #B8C5A6;
+            --warm-beige: #F2E7D5;
+            --deep-charcoal: #2C3E50;
+            --light-blue: #D6E2E8;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--warm-cream);
+            color: var(--deep-charcoal);
+            line-height: 1.6;
+        }
+        
+        .serif-font {
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, rgba(248, 246, 240, 0.9), rgba(242, 231, 213, 0.9)), url('hope-hands.png');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(44, 62, 80, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--soft-coral), var(--sage-green));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(232, 165, 152, 0.4);
+        }
+        
+        .path-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .path-node.active {
+            background: linear-gradient(135deg, var(--sage-green), var(--soft-coral));
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .path-node.completed {
+            background: var(--sage-green);
+            color: white;
+        }
+        
+        .path-line {
+            height: 3px;
+            background: linear-gradient(90deg, var(--sage-green), var(--soft-coral));
+            border-radius: 2px;
+            transition: all 0.5s ease;
+        }
+        
+        .energy-bar {
+            background: linear-gradient(90deg, var(--sage-green), var(--soft-coral));
+            height: 12px;
+            border-radius: 6px;
+            transition: width 0.8s ease;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--warm-cream);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(44, 62, 80, 0.2);
+        }
+        
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .floating-icon {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-orange-300 to-green-300 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">H</span>
+                    </div>
+                    <span class="serif-font text-xl font-bold text-gray-800">Anchor of Hope</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-orange-400 transition-colors">Home</a>
+                    <a href="path-navigation.html" class="text-orange-400 font-medium">Hope Path</a>
+                    <a href="cognitive-lab.html" class="text-gray-700 hover:text-orange-400 transition-colors">Cognitive Lab</a>
+                    <a href="story-house.html" class="text-gray-700 hover:text-orange-400 transition-colors">Story House</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
+        <div class="floating-elements">
+            <div class="floating-icon" style="left: 10%; top: 20%; animation-delay: 0s;">
+                <svg class="w-12 h-12 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+            </div>
+            <div class="floating-icon" style="left: 80%; top: 30%; animation-delay: 2s;">
+                <svg class="w-10 h-10 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+            </div>
+            <div class="floating-icon" style="left: 60%; top: 60%; animation-delay: 4s;">
+                <svg class="w-14 h-14 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l2.39 7.36L22 9.27l-5.91 4.26L18.18 21 12 16.27 5.82 21l2.09-7.47L2 9.27l7.61.09L12 2z"/>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="text-center z-10 max-w-4xl mx-auto px-4">
+            <h1 class="serif-font text-5xl md:text-6xl font-bold mb-6 text-gray-800 leading-tight">
+                <span class="inline-block">Hope Path</span>
+                <span class="inline-block bg-gradient-to-r from-green-400 to-orange-400 bg-clip-text text-transparent">Navigation</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-gray-600 max-w-3xl mx-auto">
+                Transform vague wishes into concrete achievable goals, guiding you toward hope through multiple paths
+            </p>
+            <button onclick="openGoalModal()" class="btn-primary text-white px-8 py-4 rounded-full text-lg font-medium shadow-lg">
+                Set My First Goal
+            </button>
+        </div>
+    </section>
+
+    <!-- Current Goals Display -->
+    <section class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="serif-font text-4xl font-bold mb-6 text-gray-800">My Hope Journey</h2>
+                <p class="text-xl text-gray-600">Every small goal is an important step toward hope</p>
+            </div>
+            
+            <div id="currentGoals" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Example Goal Card -->
+                <div class="card-hover bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-500 rounded-xl flex items-center justify-center">
+                            <span class="text-white text-xl">🌱</span>
+                        </div>
+                        <span class="text-sm text-gray-500">In Progress</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">Meditate 10 Minutes Daily</h3>
+                    <p class="text-gray-600 mb-4">Cultivate inner peace and focus through daily meditation practice</p>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-600 mb-2">
+                            <span>Progress</span>
+                            <span>65%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <button onclick="viewGoalDetails('meditation')" class="w-full bg-green-50 text-green-700 py-2 rounded-lg font-medium hover:bg-green-100 transition-colors">
+                        View Details
+                    </button>
+                </div>
+
+                <div class="card-hover bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-500 rounded-xl flex items-center justify-center">
+                            <span class="text-white text-xl">📚</span>
+                        </div>
+                        <span class="text-sm text-gray-500">Planning</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">Read a Psychology Book</h3>
+                    <p class="text-gray-600 mb-4">Choose a positive psychology related book to expand cognitive horizons</p>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-600 mb-2">
+                            <span>Progress</span>
+                            <span>20%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full" style="width: 20%"></div>
+                        </div>
+                    </div>
+                    <button onclick="viewGoalDetails('reading')" class="w-full bg-orange-50 text-orange-700 py-2 rounded-lg font-medium hover:bg-orange-100 transition-colors">
+                        View Details
+                    </button>
+                </div>
+
+                <div class="card-hover bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl flex items-center justify-center">
+                            <span class="text-white text-xl">🤝</span>
+                        </div>
+                        <span class="text-sm text-gray-500">Completed</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">Deep Conversation with Friends</h3>
+                    <p class="text-gray-600 mb-4">Proactively contact a friend to share recent experiences and feelings</p>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-600 mb-2">
+                            <span>Progress</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-purple-400 to-purple-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <button onclick="celebrateGoal('friendship')" class="w-full bg-purple-50 text-purple-700 py-2 rounded-lg font-medium hover:bg-purple-100 transition-colors">
+                        🎉 Celebrate Achievement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Path Visualization -->
+    <section class="py-20 px-4 bg-gradient-to-br from-green-50 to-orange-50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="serif-font text-4xl font-bold mb-6 text-gray-800">Hope Path Map</h2>
+                <p class="text-xl text-gray-600">All roads lead to Rome, choose the growth path that suits you best</p>
+            </div>
+            
+            <div class="bg-white rounded-3xl p-8 shadow-lg">
+                <div id="pathChart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Energy Tracking -->
+    <section class="py-20 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="serif-font text-4xl font-bold mb-6 text-gray-800">Hope Energy Tracking</h2>
+                <p class="text-xl text-gray-600">Every effort you make accumulates hope energy</p>
+            </div>
+            
+            <div class="bg-white rounded-3xl p-8 shadow-lg">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6 text-gray-800">Today's Energy</h3>
+                        <div class="mb-6">
+                            <div class="flex justify-between text-lg text-gray-600 mb-3">
+                                <span>Hope Energy</span>
+                                <span id="energyValue">78%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-4">
+                                <div id="energyBar" class="energy-bar w-0 rounded-full"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-green-50 rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
+                                    <span class="text-gray-700">Completed Meditation</span>
+                                </div>
+                                <span class="text-green-600 font-medium">+15%</span>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-orange-50 rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 bg-orange-400 rounded-full mr-3"></div>
+                                    <span class="text-gray-700">Set New Goal</span>
+                                </div>
+                                <span class="text-orange-600 font-medium">+25%</span>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-purple-50 rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 bg-purple-400 rounded-full mr-3"></div>
+                                    <span class="text-gray-700">Connected with Friends</span>
+                                </div>
+                                <span class="text-purple-600 font-medium">+20%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6 text-gray-800">This Week's Trend</h3>
+                        <div id="energyChart" style="height: 250px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Goal Setting Modal -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="serif-font text-2xl font-bold text-gray-800">Set New Goal</h3>
+                <button onclick="closeGoalModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="goalStep1" class="goal-step">
+                <h4 class="text-xl font-semibold mb-4 text-gray-800">What kind of goal do you want to achieve?</h4>
+                <div class="space-y-3 mb-6">
+                    <button onclick="selectGoalType('health')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all">
+                        <div class="font-medium text-gray-800">Health & Wellness</div>
+                        <div class="text-sm text-gray-600 mt-1">Exercise, diet, sleep, and other health-related goals</div>
+                    </button>
+                    <button onclick="selectGoalType('learning')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all">
+                        <div class="font-medium text-gray-800">Learning & Growth</div>
+                        <div class="text-sm text-gray-600 mt-1">Reading, skill improvement, knowledge accumulation</div>
+                    </button>
+                    <button onclick="selectGoalType('relationship')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all">
+                        <div class="font-medium text-gray-800">Relationships</div>
+                        <div class="text-sm text-gray-600 mt-1">Improving relationships with family and friends</div>
+                    </button>
+                    <button onclick="selectGoalType('emotion')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all">
+                        <div class="font-medium text-gray-800">Emotional Management</div>
+                        <div class="text-sm text-gray-600 mt-1">Stress relief, emotional regulation</div>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="goalStep2" class="goal-step hidden">
+                <h4 class="text-xl font-semibold mb-4 text-gray-800">Please describe your goal specifically</h4>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Goal Description</label>
+                    <input type="text" id="goalDescription" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent" placeholder="For example: Read for 30 minutes every night before bed">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Expected Completion Time</label>
+                    <select id="goalTimeline" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent">
+                        <option value="1week">Within 1 week</option>
+                        <option value="2weeks">Within 2 weeks</option>
+                        <option value="1month">Within 1 month</option>
+                        <option value="3months">Within 3 months</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="goBackToStep1()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                        Previous Step
+                    </button>
+                    <button onclick="proceedToStep3()" class="flex-1 btn-primary text-white py-3 rounded-lg font-medium">
+                        Next Step
+                    </button>
+                </div>
+            </div>
+            
+            <div id="goalStep3" class="goal-step hidden">
+                <h4 class="text-xl font-semibold mb-4 text-gray-800">Three action paths recommended for you</h4>
+                <div id="suggestedPaths" class="space-y-4 mb-6">
+                    <!-- Dynamic path suggestions will be generated here -->
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="goBackToStep2()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                        Previous Step
+                    </button>
+                    <button onclick="createGoal()" class="flex-1 btn-primary text-white py-3 rounded-lg font-medium">
+                        Create Goal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-300 to-green-300 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">H</span>
+                </div>
+                <span class="serif-font text-xl font-bold">Anchor of Hope</span>
+            </div>
+            <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
+                Remember, Anchor of Hope is your companion on this journey. If you feel the need for deeper support, seeking professional psychological counseling is an important way to care for yourself.
+            </p>
+            <div class="border-t border-gray-700 pt-6">
+                <p class="text-sm text-gray-500">
+                    © 2025 Anchor of Hope Psychological Reconstruction Platform. Together with you, rebuilding inner hope and strength.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let currentGoalType = '';
+        let goalData = {};
+
+        // Page load animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts
+            initPathChart();
+            initEnergyChart();
+            
+            // Energy bar animation
+            setTimeout(() => {
+                document.getElementById('energyBar').style.width = '78%';
+            }, 1000);
+            
+            // Card animations
+            anime({
+                targets: '.card-hover',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 800,
+                delay: anime.stagger(200, {start: 500}),
+                easing: 'easeOutExpo'
+            });
+        });
+
+        // Initialize path chart
+        function initPathChart() {
+            const chart = echarts.init(document.getElementById('pathChart'));
+            
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        return params.data.name + '<br/>' + params.data.description;
+                    }
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: [
+                        {name: 'Start', x: 0, y: 0, symbolSize: 80, itemStyle: {color: '#B8C5A6'}},
+                        {name: 'Set Goal', x: 150, y: 0, symbolSize: 70, itemStyle: {color: '#E8A598'}},
+                        {name: 'Choose Path', x: 300, y: 0, symbolSize: 70, itemStyle: {color: '#D6E2E8'}},
+                        {name: 'Execute Plan', x: 450, y: -50, symbolSize: 60, itemStyle: {color: '#F2E7D5'}},
+                        {name: 'Adjust Strategy', x: 450, y: 50, symbolSize: 60, itemStyle: {color: '#F2E7D5'}},
+                        {name: 'Achieve Goal', x: 600, y: 0, symbolSize: 80, itemStyle: {color: '#B8C5A6'}}
+                    ],
+                    links: [
+                        {source: 'Start', target: 'Set Goal'},
+                        {source: 'Set Goal', target: 'Choose Path'},
+                        {source: 'Choose Path', target: 'Execute Plan'},
+                        {source: 'Choose Path', target: 'Adjust Strategy'},
+                        {source: 'Execute Plan', target: 'Achieve Goal'},
+                        {source: 'Adjust Strategy', target: 'Achieve Goal'}
+                    ],
+                    roam: true,
+                    force: {
+                        repulsion: 1000,
+                        edgeLength: 150
+                    },
+                    lineStyle: {
+                        color: '#E8A598',
+                        width: 3,
+                        curveness: 0.2
+                    },
+                    label: {
+                        show: true,
+                        position: 'bottom',
+                        fontSize: 12,
+                        color: '#2C3E50'
+                    }
+                }]
+            };
+            
+            chart.setOption(option);
+        }
+
+        // Initialize energy chart
+        function initEnergyChart() {
+            const chart = echarts.init(document.getElementById('energyChart'));
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    axisLine: {lineStyle: {color: '#E8A598'}}
+                },
+                yAxis: {
+                    type: 'value',
+                    min: 0,
+                    max: 100,
+                    axisLine: {lineStyle: {color: '#E8A598'}}
+                },
+                series: [{
+                    data: [65, 72, 68, 75, 82, 78, 85],
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        color: '#B8C5A6',
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#E8A598'
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [
+                                {offset: 0, color: 'rgba(184, 197, 166, 0.3)'},
+                                {offset: 1, color: 'rgba(184, 197, 166, 0.1)'}
+                            ]
+                        }
+                    }
+                }]
+            };
+            
+            chart.setOption(option);
+        }
+
+        // Goal related functions
+        function openGoalModal() {
+            document.getElementById('goalModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGoalModal() {
+            document.getElementById('goalModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            resetGoalModal();
+        }
+
+        function resetGoalModal() {
+            document.querySelectorAll('.goal-step').forEach(step => step.classList.add('hidden'));
+            document.getElementById('goalStep1').classList.remove('hidden');
+            currentGoalType = '';
+            goalData = {};
+        }
+
+        function selectGoalType(type) {
+            currentGoalType = type;
+            goalData.type = type;
+            document.getElementById('goalStep1').classList.add('hidden');
+            document.getElementById('goalStep2').classList.remove('hidden');
+        }
+
+        function goBackToStep1() {
+            document.getElementById('goalStep2').classList.add('hidden');
+            document.getElementById('goalStep1').classList.remove('hidden');
+        }
+
+        function proceedToStep3() {
+            const description = document.getElementById('goalDescription').value;
+            const timeline = document.getElementById('goalTimeline').value;
+            
+            if (!description.trim()) {
+                alert('Please enter goal description');
+                return;
+            }
+            
+            goalData.description = description;
+            goalData.timeline = timeline;
+            
+            generateSuggestedPaths();
+            document.getElementById('goalStep2').classList.add('hidden');
+            document.getElementById('goalStep3').classList.remove('hidden');
+        }
+
+        function goBackToStep2() {
+            document.getElementById('goalStep3').classList.add('hidden');
+            document.getElementById('goalStep2').classList.remove('hidden');
+        }
+
+        function generateSuggestedPaths() {
+            const container = document.getElementById('suggestedPaths');
+            const paths = getPathsForGoalType(currentGoalType);
+            
+            container.innerHTML = '';
+            
+            paths.forEach((path, index) => {
+                const pathElement = document.createElement('div');
+                pathElement.className = 'p-4 border-2 border-gray-200 rounded-xl hover:border-orange-300 hover:bg-orange-50 transition-all cursor-pointer';
+                pathElement.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <span class="text-white text-sm font-bold">${index + 1}</span>
+                        </div>
+                        <div class="flex-1">
+                            <h5 class="font-semibold text-gray-800 mb-2">${path.title}</h5>
+                            <p class="text-sm text-gray-600 mb-3">${path.description}</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${path.steps.map(step => `<span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">${step}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                pathElement.onclick = () => selectPath(index);
+                container.appendChild(pathElement);
+            });
+        }
+
+        function getPathsForGoalType(type) {
+            const pathTemplates = {
+                health: [
+                    {
+                        title: 'Gradual Health Building',
+                        description: 'Start with small healthy habits and gradually establish a healthy lifestyle',
+                        steps: ['5 minutes daily', 'Gradually increase', 'Form habits']
+                    },
+                    {
+                        title: 'Social Health Support',
+                        description: 'Find health partners to support and encourage each other',
+                        steps: ['Find partner', 'Make plan', 'Mutual supervision']
+                    },
+                    {
+                        title: 'Professional Guidance Path',
+                        description: 'Seek professional advice to create personalized health solutions',
+                        steps: ['Consult expert', 'Create plan', 'Execute & adjust']
+                    }
+                ],
+                learning: [
+                    {
+                        title: 'Systematic Learning',
+                        description: 'Follow a structured plan to progressively master knowledge',
+                        steps: ['Make plan', 'Daily learning', 'Regular review']
+                    },
+                    {
+                        title: 'Practice-Oriented Learning',
+                        description: 'Learn new skills through hands-on practice and projects',
+                        steps: ['Choose project', 'Hands-on practice', 'Summarize experience']
+                    },
+                    {
+                        title: 'Community Learning',
+                        description: 'Join learning communities to grow together with others',
+                        steps: ['Join community', 'Participate in discussions', 'Share achievements']
+                    }
+                ],
+                relationship: [
+                    {
+                        title: 'Proactive Communication',
+                        description: 'Initiate dialogue and express genuine feelings',
+                        steps: ['Take initiative', 'Express sincerely', 'Listen & understand']
+                    },
+                    {
+                        title: 'Shared Activities',
+                        description: 'Strengthen bonds and understanding through common activities',
+                        steps: ['Choose activity', 'Participate together', 'Share experience']
+                    },
+                    {
+                        title: 'Gratitude Expression',
+                        description: 'Learn to express gratitude and enhance relationship connection',
+                        steps: ['Discover strengths', 'Express thanks', 'Maintain continuously']
+                    }
+                ],
+                emotion: [
+                    {
+                        title: 'Awareness & Acceptance',
+                        description: 'Learn to be aware of emotions and accept your feelings',
+                        steps: ['Emotional awareness', 'Accept feelings', 'Find causes']
+                    },
+                    {
+                        title: 'Expression & Release',
+                        description: 'Express and release emotions in safe ways',
+                        steps: ['Choose method', 'Safe expression', 'Emotional release']
+                    },
+                    {
+                        title: 'Cognitive Restructuring',
+                        description: 'Change cognition and interpretation of emotions',
+                        steps: ['Identify thoughts', 'Question cognition', 'Restructure interpretation']
+                    }
+                ]
+            };
+            
+            return pathTemplates[type] || pathTemplates.health;
+        }
+
+        function selectPath(index) {
+            goalData.selectedPath = index;
+            // Highlight selected path
+            document.querySelectorAll('#suggestedPaths > div').forEach((div, i) => {
+                if (i === index) {
+                    div.classList.add('border-orange-400', 'bg-orange-50');
+                } else {
+                    div.classList.remove('border-orange-400', 'bg-orange-50');
+                }
+            });
+        }
+
+        function createGoal() {
+            if (goalData.selectedPath === undefined) {
+                alert('Please select an action path');
+                return;
+            }
+            
+            // Here you can send goal data to backend
+            console.log('Creating goal:', goalData);
+            
+            // Show success message
+            alert('Goal created successfully! You can view and manage your goals in "My Hope Journey".');
+            closeGoalModal();
+            
+            // You can add animation effects here to show the newly created goal
+        }
+
+        // Other functions
+        function viewGoalDetails(goalId) {
+            alert(`View goal details: ${goalId} - Function under development...`);
+        }
+
+        function celebrateGoal(goalId) {
+            // Celebration animation
+            anime({
+                targets: event.target,
+                scale: [1, 1.2, 1],
+                duration: 600,
+                easing: 'easeInOutQuad'
+            });
+            
+            setTimeout(() => {
+                alert('🎉 Congratulations on completing this goal! Your persistence and effort deserve celebration. Keep up this positive momentum!');
+            }, 300);
+        }
+    </script>
+</body>
+</html>
